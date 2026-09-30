@@ -71,3 +71,38 @@ jobs:
     steps:
       - name: Pull Docker image from GHCR
         run: docker pull ghcr.io/${{ github.repository_owner }}/secure-cicd-app:${{ github.sha }}
+
+      - name: Start candidate container
+        run: |
+          docker rm -f secure-cicd-web-candidate 2>/dev/null || true
+          docker run -d \
+            --name secure-cicd-web-candidate \
+            -p 127.0.0.1:5001:5000 \
+            ghcr.io/${{ github.repository_owner }}/secure-cicd-app:${{ github.sha }}
+
+      - name: Smoke test candidate container
+        run: |
+          curl --fail \
+            --retry 5 \
+            --retry-delay 2 \
+            --retry-connrefused \
+            http://127.0.0.1:5001
+
+      - name: Deploy candidate to production
+        run: |
+          docker rm -f secure-cicd-web 2>/dev/null || true
+          docker run -d \
+            --name secure-cicd-web \
+            -p 127.0.0.1:5000:5000 \
+            ghcr.io/${{ github.repository_owner }}/secure-cicd-app:${{ github.sha }}
+
+      - name: Smoke test production container
+        run: |
+          curl --fail \
+            --retry 5 \
+            --retry-delay 2 \
+            --retry-connrefused \
+            http://127.0.0.1:5000
+
+      - name: Clean up candidate container
+        run: docker rm -f secure-cicd-web-candidate
