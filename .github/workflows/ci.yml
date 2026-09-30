@@ -33,3 +33,14 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t secure-cicd-app:ci .
+
+
+      - name: Run Trivy image vulnerability scan
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: 'secure-cicd-app:ci'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'HIGH,CRITICAL'
