@@ -61,3 +61,27 @@ jobs:
 
       - name: Push Docker image to GHCR
         run: docker push ghcr.io/${{ github.repository_owner }}/secure-cicd-app:${{ github.sha }}
+
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/github_actions_deploy
+          chmod 600 ~/.ssh/github_actions_deploy
+          printf '%s\n' "${{ secrets.EC2_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+
+      - name: Test SSH connection
+        run: |
+          ssh \
+            -i ~/.ssh/github_actions_deploy \
+            -o IdentitiesOnly=yes \
+            -o BatchMode=yes \
+            "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" \
+            'echo "SSH connection successful"'
