@@ -262,9 +262,7 @@ The second Trivy scan reported:
 
 This demonstrated a complete vulnerability remediation cycle rather than simply suppressing scanner findings.
 
-
-
-
+---
 
 ## Security & CI/CD Evidence
 
