@@ -262,6 +262,75 @@ The second Trivy scan reported:
 
 This demonstrated a complete vulnerability remediation cycle rather than simply suppressing scanner findings.
 
+
+
+
+
+## Security & CI/CD Evidence
+
+### Vulnerability Detection
+
+During the initial container image scan, Trivy detected **6 vulnerabilities** in the Debian-based image.
+
+![Trivy vulnerability scan failure](docs/screenshots/01-trivy-failure.png)
+
+The detected vulnerabilities were investigated and remediated by updating the affected operating system packages. The Docker image was then rebuilt and scanned again.
+
+### Vulnerability Remediation
+
+After remediation, the new container image passed the Trivy scan with **0 detected vulnerabilities**.
+
+![Trivy clean scan after remediation](docs/screenshots/02-security-remediation-success.png)
+
+This demonstrates the complete security remediation cycle:
+
+```text
+Detect
+  ↓
+Analyze
+  ↓
+Remediate
+  ↓
+Rebuild
+  ↓
+Rescan
+  ↓
+Pass
+```
+---
+
+### Final CI/CD Pipeline
+
+The final workflow successfully completes both the CI/security stage and the automated deployment stage.
+
+![Successful CI/CD pipeline](docs/screenshots/03-final-cicd-success.png)
+
+The final pipeline follows this flow:
+
+```text
+Code Push
+   ↓
+Automated Tests
+   ↓
+SAST
+   ↓
+Dependency Scan
+   ↓
+Docker Build
+   ↓
+Container Image Scan
+   ↓
+GHCR Publish
+   ↓
+Candidate Deployment
+   ↓
+Smoke Test
+   ↓
+Production Deployment
+   ↓
+Production Verification
+```
+
 ---
 
 ## Container Registry
